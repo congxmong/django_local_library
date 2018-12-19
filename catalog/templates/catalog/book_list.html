@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Book List</h1>
+  {% if my_book_list %}
+  <ul>
+    {% for book in my_book_list %}
+      <li>
+        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> (<a href="{{ book.author.get_absolute_url }}">{{book.author}}</a>)
+        {% if book.bookinstance_set.count == 1 %}
+          - 1 copy
+        {% elif book.bookinstance_set.count > 1 %}
+          - {{book.bookinstance_set.count}} copies
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no books in the library.</p>
+  {% endif %}       
+{% endblock %}

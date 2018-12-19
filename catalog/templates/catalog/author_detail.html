@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Author</h1> 
+  {% if perms.catalog.can_mark_returned %}
+  [<a href="{{ author.get_update_url }}">Update author</a>] 
+  [<a href="{{ author.get_delete_url }}">Delete author</a>]
+  {% endif %}
+
+  <p><strong>First Name:</strong> {{ author.first_name }}</p>
+  <p><strong>Last Name:</strong> {{ author.last_name }}</p>
+  <p><strong>DoB:</strong> {{ author.date_of_birth }}</p>
+  {% if author.date_of_death %}
+  <p><strong>DoD:</strong> {{ author.date_of_death }}</p>
+  {% endif %}
+  {% if author.book_set.count > 0 %}
+  <p><strong>Books:</strong>
+    <ul>
+    {% for book in author.book_set.all %}
+       <li>
+        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a>
+        {% if book.bookinstance_set.count == 1 %}
+          (1 copy)
+        {% elif book.bookinstance_set.count > 1 %}
+          ({{book.bookinstance_set.count}} copies)
+        {% endif %}
+        <div>{{ book.summary }}</div>
+       </li>
+    {% endfor %}
+    </ul>
+  </p>
+  {% endif %}
+{% endblock %}
