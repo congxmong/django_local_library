@@ -1,7 +1,9 @@
 {% extends "base_generic.html" %}
+{% load static %}
 
 {% block content %}
   <h1>Title: {{ book.title }}</h1>
+  <p><img src="{% static 'media/' %}{{ book.picture }}" alt="cover" height="300"></p>
   {% if perms.catalog.can_mark_returned %}
   [<a href="{{ book.get_update_url }}">Update book</a>] 
   [<a href="{{ book.get_delete_url }}">Delete book</a>]

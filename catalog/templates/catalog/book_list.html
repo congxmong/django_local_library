@@ -1,4 +1,5 @@
 {% extends "base_generic.html" %}
+{% load static %}
 
 {% block content %}
   <h1>Book List</h1>
@@ -12,6 +13,7 @@
         {% elif book.bookinstance_set.count > 1 %}
           - {{book.bookinstance_set.count}} copies
         {% endif %}
+        <p><img src="{% static 'media/' %}{{ book.picture }}" alt="cover" height="100"></p>
       </li>
     {% endfor %}
   </ul>

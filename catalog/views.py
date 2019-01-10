@@ -152,7 +152,7 @@ def renew_book_librarian(request, pk):
 class AuthorCreate(CreateView):
     model = Author
     fields = '__all__'
-    initial = {'date_of_death': '05/01/2018'}
+    # initial = {'date_of_death': '05/01/2018'}
     success_url = reverse_lazy('authors')
 
 
