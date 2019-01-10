@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&
 # DEBUG = True
 DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
 
-ALLOWED_HOSTS = ['secure-savannah-15752.herokuapp.com']
+ALLOWED_HOSTS = ['secure-savannah-15752.herokuapp.com', 'fathomless-ridge-97421.herokuapp.com']
 
 
 # Application definition
