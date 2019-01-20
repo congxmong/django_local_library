@@ -10,6 +10,9 @@ from catalog.forms import RenewBookModelForm
 from django.contrib.auth.decorators import permission_required
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+import requests
+import json
+import time
 
 
 # Create your views here.
@@ -33,6 +36,24 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
+    API_key = '40a39f287b501ceed73f1e524f1cf2ea'
+    # location = {'Laval, Fr', 'Hanoi, Vn'}
+    location = 'Laval, Fr'
+
+    url = 'http://api.openweathermap.org/data/2.5/weather?q=%s&APPID=%s' % (location, API_key)
+    response = requests.get(url)
+    response.raise_for_status()
+
+    #Load JSON data into a Python variable.
+    weather_data = json.loads(response.text)
+
+    w2 = weather_data['sys']
+    sunrise_time = time.strftime('%Hh%M', time.localtime(w2['sunrise']))
+    sunset_time = time.strftime('%Hh%M', time.localtime(w2['sunset']))
+    temperature = round(float(weather_data['main']['temp'])-273.15)
+    humidity = weather_data['main']['humidity']
+    weather_description = weather_data['weather'][0]['main']
+
     context = {
         'num_books': num_books,
         'num_instances': num_instances,
@@ -41,6 +62,12 @@ def index(request):
         'num_genres': num_genres,
         'num_languages': num_languages,
         'num_visits': num_visits,
+        'weather_data': weather_data,
+        'sunrise_time': sunrise_time,
+        'sunset_time': sunset_time,
+        'temperature': temperature,
+        'humidity': humidity,
+        'weather_description': weather_description
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -53,11 +80,11 @@ class BookListView(generic.ListView):
     paginate_by = 10
     context_object_name = 'my_book_list'  # your own name for the list as a template variable
     queryset = Book.objects.filter(title__icontains='sea')[:5]  # Get 5 books containing the title sea
-    template_name = 'books/my_arbitrary_template_name_list.html'  # Specify your own template name/location
+    template_name = 'catalog/book_list.html'  # Specify your own template name/location
 
     def get_queryset(self):
         # return Book.objects.filter(title__icontains='sea')[:5] # Get 5 books containing the title sea
-        return Book.objects.all()
+        return Book.objects.all().order_by('title')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get the context
@@ -149,14 +176,14 @@ def renew_book_librarian(request, pk):
     return render(request, 'catalog/book_renew_librarian.html', context)
 
 
-class AuthorCreate(CreateView):
+class AuthorCreate(LoginRequiredMixin, CreateView):
     model = Author
     fields = '__all__'
     # initial = {'date_of_death': '05/01/2018'}
     success_url = reverse_lazy('authors')
 
 
-class AuthorUpdate(UpdateView):
+class AuthorUpdate(LoginRequiredMixin, UpdateView):
     model = Author
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
 
@@ -167,18 +194,18 @@ class AuthorUpdate(UpdateView):
     # success_url = reverse_lazy('author_update')
 
 
-class AuthorDelete(DeleteView):
+class AuthorDelete(LoginRequiredMixin, DeleteView):
     model = Author
     success_url = reverse_lazy('authors')
 
 
-class BookCreate(CreateView):
+class BookCreate(LoginRequiredMixin, CreateView):
     model = Book
     fields = '__all__'
     success_url = reverse_lazy('books')
 
 
-class BookUpdate(UpdateView):
+class BookUpdate(LoginRequiredMixin, UpdateView):
     model = Book
     fields = '__all__'
 
@@ -187,12 +214,12 @@ class BookUpdate(UpdateView):
         return reverse_lazy('book-detail', kwargs={'pk': bookid})
 
 
-class BookDelete(DeleteView):
+class BookDelete(LoginRequiredMixin, DeleteView):
     model = Book
     success_url = reverse_lazy('books')
 
 
-class BookInstanceCreate(CreateView):
+class BookInstanceCreate(LoginRequiredMixin, CreateView):
     model = BookInstance
     fields = '__all__'
     success_url = reverse_lazy('books')
